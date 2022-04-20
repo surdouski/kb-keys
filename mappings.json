@@ -1,0 +1,16 @@
+{
+    "vscode": {
+        "tab": {
+            "close": [
+                {
+                    "key": "ctrl+w",
+                    "command": "-workbench.action.closeActiveEditor"
+                },
+                {
+                    "key": "ctrl+i",
+                    "command": "workbench.action.closeActiveEditor"
+                }
+            ]
+        }
+    }
+}

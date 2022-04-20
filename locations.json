@@ -1,0 +1,7 @@
+{
+    "vscode": {
+        "windows": "$ENV:AppData\\Code\\User\\keybindings.json",
+        "linux": "$HOME\\.config\\Code\\User\\keybindings.json",
+        "mac": "$HOME\\Library\\Application Support\\Code\\User\\keybindings.json"
+    }
+}
