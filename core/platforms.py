@@ -9,6 +9,10 @@ class UnknownPlatformError(Exception):
 
 class Platform:
     @property
+    def _name(self) -> str:
+        ...
+
+    @property
     def _match_names(self) -> tuple:
         ...
 
@@ -27,38 +31,32 @@ class Platform:
                 return True
         return False
 
+    def __str__(self):
+        return self._name
+
 
 class LinuxPlatform(Platform):
-    name = "Linux"
+    _name = "Linux"
     _locations_key = "linux"
     _match_names = (
         "linux",
         "posix",
     )
 
-    def __str__(self):
-        return self.name
-
 
 class MacPlatform(Platform):
-    name = "MacOS"
+    _name = "MacOS"
     _locations_key = "mac"
     _match_names = (
         "mac",
         "darwin",
     )
 
-    def __str__(self):
-        return self.name
-
 
 class WindowsPlatform(Platform):
-    name = "Windows"
+    _name = "Windows"
     _locations_key = "windows"
     _match_names = ("windows",)
-
-    def __str__(self):
-        return self.name
 
 
 def get_platform() -> Platform:
