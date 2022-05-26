@@ -1,3 +1,7 @@
+from abc import ABC, abstractproperty
+
+from attrs import define
+from enum import Enum
 from pathlib import Path
 import platform
 import json
@@ -7,68 +11,71 @@ class UnknownPlatformError(Exception):
     pass
 
 
-class Platform:
-    @property
-    def _name(self) -> str:
+class Platform(ABC):
+    @abstractproperty
+    def name(self) -> str:
         ...
 
-    @property
-    def _match_names(self) -> tuple:
+    @abstractproperty
+    def locations_key(self) -> str:
         ...
 
-    @property
-    def _locations_key(self) -> str:
+    @abstractproperty
+    def match_names(self) -> tuple:
         ...
 
-    def get_bindings_path(self, config_dir: Path) -> Path:
+    @classmethod
+    def get_bindings_path(cls, config_dir: Path) -> Path:
         with open(config_dir / "locations.json", "r") as _file:
             data: dict = json.loads(_file.read())
-            return Path(data.get(self._locations_key))
+            return Path(data.get(cls.locations_key))
 
-    def __eq__(self, other: str) -> bool:
-        for match in self._match_names:
-            if match in other.lower():
+    @classmethod
+    def equals(cls, value: str) -> bool:
+        for match in cls.match_names:
+            if match in value.lower():
                 return True
         return False
 
-    def __str__(self):
-        return self._name
+
+Platform.register(Enum)
 
 
 class LinuxPlatform(Platform):
-    _name = "Linux"
-    _locations_key = "linux"
-    _match_names = (
+    name = "Linux"
+    locations_key = "linux"
+    match_names = (
         "linux",
         "posix",
     )
 
 
 class MacPlatform(Platform):
-    _name = "MacOS"
-    _locations_key = "mac"
-    _match_names = (
+    name = "MacOS"
+    locations_key = "mac"
+    match_names = (
         "mac",
         "darwin",
     )
 
 
 class WindowsPlatform(Platform):
-    _name = "Windows"
-    _locations_key = "windows"
-    _match_names = ("windows",)
+    name = "Windows"
+    locations_key = "windows"
+    match_names = ("windows",)
 
 
 def get_platform() -> Platform:
-    platform_system = platform.system()
+    platform_system = platform.system().lower()
+    match platform_system:
+        case (x) if x in LinuxPlatform.match_names:
+            return LinuxPlatform
+        case (x) if x in WindowsPlatform.match_names:
+            return WindowsPlatform
+        case (x) if x in MacPlatform.match_names:
+            return MacPlatform
+        case _:
+            raise UnknownPlatformError("Unable to parse platform.")
 
-    if platform_system == LinuxPlatform():
-        return LinuxPlatform()
-    elif platform_system == WindowsPlatform():
-        return WindowsPlatform()
-    elif platform_system == MacPlatform():
-        return MacPlatform()
-    else:
-        raise UnknownPlatformError(
-            f"Unable to parse {platform_system} to known platform."
-        )
+
+print(get_platform().name)
